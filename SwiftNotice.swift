@@ -10,7 +10,7 @@ import Foundation
 import UIKit
 
 private let sn_topBar: Int = 1001
-
+typealias SwiftNoticeTimeOutClearNoticeBlock = () -> Void
 extension UIResponder {
     /// wait with your own animated images
     @discardableResult
@@ -65,6 +65,12 @@ extension UIResponder {
     func clearAllNotice() {
         SwiftNotice.clear()
     }
+
+    func timeOutClearNotice(swiftNoticeBlock:@escaping SwiftNoticeTimeOutClearNoticeBlock){
+
+        SwiftNotice.swiftNoticeTimeOutClearNoticeBlock = swiftNoticeBlock
+
+    }
 }
 
 enum NoticeType{
@@ -74,6 +80,8 @@ enum NoticeType{
 }
 
 class SwiftNotice: NSObject {
+
+    static var swiftNoticeTimeOutClearNoticeBlock:SwiftNoticeTimeOutClearNoticeBlock?
     
     static var windows = Array<UIWindow?>()
     static let rv = UIApplication.shared.keyWindow?.subviews.first as UIView?
@@ -436,6 +444,11 @@ fileprivate extension Selector {
                     if let index = windows.index(where: { (item) -> Bool in
                         return item == window
                     }) {
+
+                        if (swiftNoticeTimeOutClearNoticeBlock != nil){
+
+                            swiftNoticeTimeOutClearNoticeBlock!()
+                        }
                         windows.remove(at: index)
                     }
                 })
